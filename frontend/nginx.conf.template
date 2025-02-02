@@ -1,0 +1,38 @@
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /opt/bitnami/nginx/conf/mime.types;
+    
+    gzip on;
+    gzip_comp_level 5;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript application/x-font-ttf image/svg+xml image/x-icon;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+
+    resolver ${DNS_IP} valid=30s;
+
+    server {
+        listen 8080;
+        
+        location / {
+            root /usr/share/nginx/html;
+            try_files $uri /index.html;
+        }
+
+        location /api {
+         proxy_pass ${VITE_API_URL};
+         proxy_http_version 1.1;
+         proxy_set_header X-Forwarded-Proto https;
+         proxy_set_header Upgrade $http_upgrade;
+         proxy_set_header Connection 'upgrade';
+         proxy_set_header Host $host;
+         proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+}
