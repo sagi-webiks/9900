@@ -56,8 +56,8 @@ export default function FeatureDialog() {
       const feature = dialogState.data as Feature<Geometry>;
       featuresRef.current = [feature];
       const properties = feature.getProperties();
-      setValue("name", properties.name || "");
-      setValue("priority", properties.priority ?? null);
+      setValue("name", properties.name || "", { shouldValidate: true });
+      setValue("priority", properties.priority ?? null, { shouldValidate: true });
     }
   }, [dialogState.data, setValue]);
 
@@ -140,8 +140,9 @@ export default function FeatureDialog() {
                 error={!!errors.name}
                 helperText={errors.name?.message}
                 onChange={(e) => {
-                  setValue("name", e.target.value);
-                  handleFieldChange("name", e.target.value);
+                  const value = e.target.value;
+                  setValue("name", value, { shouldValidate: true });
+                  handleFieldChange("name", value);
                 }}
               />
               <TextField
@@ -155,7 +156,7 @@ export default function FeatureDialog() {
                 helperText={errors.priority?.message}
                 onChange={(e) => {
                   const priority = e.target.value ? Number(e.target.value) : null;
-                  setValue("priority", priority);
+                  setValue("priority", priority, { shouldValidate: true });
                   handleFieldChange("priority", priority);
                 }}
               />
