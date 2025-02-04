@@ -16,7 +16,7 @@ export const useGetTodos = () =>
   useQuery<Feature<Geometry>[]>({
     queryKey: ["todos"],
     queryFn: async () => {
-      const { data } = await apiClient.get("/");
+      const { data } = await apiClient.get("/todos");
 
       const features = data
         .map((todo: ITodo) => jsonToFeature(todo))
@@ -30,7 +30,7 @@ export const useGetTodoById = (id?: string) =>
   useQuery<Feature<Geometry> | null>({
     queryKey: ["todo", id],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/${id}`);
+      const { data } = await apiClient.get(`/todos/${id}`);
       return jsonToFeature(data);
     },
     enabled: id != null,
@@ -42,7 +42,7 @@ export const useCreateTodo = (onSuccess: () => void, onError?: (error: unknown) 
   return useMutation<Feature<Geometry>, unknown, Feature<Geometry>>({
     mutationFn: async (newTodo) => {
       const backendTodo = featureToJson(newTodo);
-      const { data } = await apiClient.post("/", backendTodo);
+      const { data } = await apiClient.post("/todos", backendTodo);
       return data;
     },
     onSuccess: () => {
@@ -60,7 +60,7 @@ export const useUpdateTodo = (onSuccess: () => void, onError?: (error: unknown) 
     mutationFn: async ({ id, updatedTodo }) => {
       const backendUpdatedTodo = featureToJson(updatedTodo);
       console.log(backendUpdatedTodo);
-      const { data } = await apiClient.put(`/${id}`, backendUpdatedTodo);
+      const { data } = await apiClient.put(`/todos/${id}`, backendUpdatedTodo);
       return data;
     },
     onSuccess: (_, { id }) => {
@@ -77,7 +77,7 @@ export const useDeleteTodo = (onSuccess: () => void, onError?: (error: unknown) 
 
   return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
-      await apiClient.delete(`/${id}`);
+      await apiClient.delete(`/todos/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
